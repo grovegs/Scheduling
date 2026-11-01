@@ -1,0 +1,20 @@
+{
+  "name": "com.grovegames.scheduling",
+  "version": "0.0.0",
+  "displayName": "GroveGames.Scheduling",
+  "description": "Zero-allocation delayed callbacks with scaled, unscaled and realtime clocks for .NET and Unity",
+  "unity": "2021.3",
+  "documentationUrl": "https://github.com/grovegs/Scheduling",
+  "changelogUrl": "https://github.com/grovegs/Scheduling/releases",
+  "licensesUrl": "https://github.com/grovegs/Scheduling/blob/main/LICENSE",
+  "keywords": [
+    "scheduling",
+    "scheduler",
+    "timer",
+    "delay"
+  ],
+  "author": {
+    "name": "Grove Games",
+    "url": "https://github.com/grovegs"
+  }
+}
