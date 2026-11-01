@@ -1,6 +1,6 @@
 {
   "name": "com.grovegames.scheduling",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "displayName": "GroveGames.Scheduling",
   "description": "Zero-allocation delayed callbacks with scaled, unscaled and realtime clocks for .NET and Unity",
   "unity": "2021.3",
