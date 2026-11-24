@@ -14,3 +14,9 @@
 - Unity code uses block namespaces and C# 10.
 - Every file and folder in the package needs a `.meta` with a 32-character lowercase hex GUID. Existing asmdef GUIDs must not change, because projects reference them.
 - Tests are named `MethodName_Condition_Expected`, with arrange, act and assert separated by blank lines.
+
+## Agent Skills
+
+- The rules for game code that uses this package are an agent skill. Its source is `skills/grovegames-scheduling/`: `SKILL.md` holds the rules that apply everywhere, `unity.md` holds only what differs in Unity. It is optional.
+- The release writes the skill the Unity package ships, the same way it copies the README and the license: `SKILL.md` followed by `unity.md`, when there is one. Never edit the copy under `Skills~/`; the next release replaces it.
+- The NuGet package ships `skills/grovegames-scheduling/SKILL.md` as it is.
