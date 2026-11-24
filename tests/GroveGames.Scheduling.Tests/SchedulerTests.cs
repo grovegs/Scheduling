@@ -5,13 +5,13 @@ namespace GroveGames.Scheduling.Tests;
 
 public sealed class SchedulerTests
 {
-    private sealed class TestScheduledAction : IScheduledAction
+    private sealed class FakeScheduledAction : IScheduledAction
     {
         private int _invokeCount;
 
         public int InvokeCount => _invokeCount;
 
-        public TestScheduledAction()
+        public FakeScheduledAction()
         {
             _invokeCount = 0;
         }
@@ -209,7 +209,7 @@ public sealed class SchedulerTests
     public void Schedule_ScheduledAction_InvokesActionWhenDue()
     {
         var scheduler = new Scheduler();
-        var action = new TestScheduledAction();
+        var action = new FakeScheduledAction();
         scheduler.Schedule(action, 1d);
 
         scheduler.Update(1f, 1f, 1f);
