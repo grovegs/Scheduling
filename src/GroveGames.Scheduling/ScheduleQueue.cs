@@ -9,6 +9,8 @@ internal sealed class ScheduleQueue
 
     public int Count => _count;
 
+    public int Capacity => _items.Length;
+
     public ScheduleQueue(int capacity)
     {
         _items = new ScheduledCall[capacity];
@@ -26,9 +28,9 @@ internal sealed class ScheduleQueue
         {
             RemoveCanceled();
 
-            if (_count == _items.Length)
+            if (_count > _items.Length >> 1)
             {
-                Array.Resize(ref _items, _count << 1);
+                Array.Resize(ref _items, _items.Length << 1);
             }
         }
 
