@@ -51,6 +51,11 @@ public sealed class Scheduler : IScheduler
 
     private void Enqueue(Action? callback, IScheduledAction? action, double delay, ScheduleToken? token, TimeMode timeMode)
     {
+        if (token != null && token.IsCanceled)
+        {
+            return;
+        }
+
         var time = GetTime(timeMode) + Math.Max(delay, 0d);
         var call = new ScheduledCall(callback, action, time, _nextOrder++, token);
         GetQueue(timeMode).Push(in call);
