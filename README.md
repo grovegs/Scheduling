@@ -14,7 +14,7 @@ Zero-allocation delayed callbacks with scaled, unscaled and realtime clocks for 
 - **Core**: `IScheduler` and `Scheduler` in the `GroveGames.Scheduling` NuGet package run an `Action` or an `IScheduledAction` after a delay. Calls are kept in a binary heap per clock, so scheduling allocates nothing until the heap grows.
 - **Three clocks**: `TimeMode.Scaled`, `TimeMode.Unscaled` and `TimeMode.Realtime` each advance from the deltas passed to `Update`, so pausing the game only stops the scaled clock.
 - **Order**: Calls due at the same time run in the order they were scheduled. A call scheduled from inside a callback waits for the next `Update`, even with a zero delay.
-- **Cancellation**: `ScheduleToken.Cancel()` drops every call scheduled with that token. `Reset()` lets new calls run while the canceled ones stay dropped.
+- **Cancellation**: `ScheduleToken.Cancel()` drops every call scheduled with that token. `Reset()` lets new calls run while the canceled ones stay dropped. A call scheduled with a token that is already canceled is dropped too.
 - **Dependency injection**: `AddScheduler()` registers `IScheduler` with [GroveGames.DependencyInjection](https://github.com/grovegs/DependencyInjection) and updates it from Unity's time every frame.
 
 ## Installation

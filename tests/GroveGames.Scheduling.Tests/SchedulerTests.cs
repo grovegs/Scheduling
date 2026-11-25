@@ -175,6 +175,21 @@ public sealed class SchedulerTests
     }
 
     [Fact]
+    public void Schedule_CanceledTokenThenReset_DoesNotInvoke()
+    {
+        var scheduler = new Scheduler();
+        var token = new ScheduleToken();
+        var count = 0;
+        token.Cancel();
+
+        scheduler.Schedule(() => count++, 1d, token);
+        token.Reset();
+        scheduler.Update(2f, 2f, 2f);
+
+        Assert.Equal(0, count);
+    }
+
+    [Fact]
     public void Update_TokenResetAfterCancel_RunsOnlyNewCallbacks()
     {
         var scheduler = new Scheduler();
