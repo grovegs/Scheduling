@@ -4,8 +4,7 @@ namespace GroveGames.Scheduling;
 
 internal readonly struct ScheduledCall
 {
-    private readonly Action? _callback;
-    private readonly IScheduledAction? _action;
+    private readonly object? _target;
     private readonly double _time;
     private readonly long _order;
     private readonly ScheduleToken? _token;
@@ -19,8 +18,7 @@ internal readonly struct ScheduledCall
 
     public ScheduledCall(Action? callback, IScheduledAction? action, double time, long order, ScheduleToken? token)
     {
-        _callback = callback;
-        _action = action;
+        _target = (object?)callback ?? action;
         _time = time;
         _order = order;
         _token = token;
@@ -29,12 +27,15 @@ internal readonly struct ScheduledCall
 
     public void Invoke()
     {
-        if (_callback != null)
+        if (_target is Action callback)
         {
-            _callback();
+            callback();
             return;
         }
 
-        _action?.Invoke();
+        if (_target is IScheduledAction action)
+        {
+            action.Invoke();
+        }
     }
 }

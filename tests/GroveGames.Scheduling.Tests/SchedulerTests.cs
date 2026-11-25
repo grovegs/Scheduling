@@ -247,4 +247,41 @@ public sealed class SchedulerTests
 
         Assert.Equal(1000, invokeCount);
     }
+
+    [Fact]
+    public void Update_CallbackThrows_RunsEveryOtherDueCallbackThenThrows()
+    {
+        var scheduler = new Scheduler();
+        var scaledCount = 0;
+        var unscaledCount = 0;
+        scheduler.Schedule(static () => throw new InvalidOperationException("Broken"), 0d);
+        scheduler.Schedule(() => scaledCount++, 0d);
+        scheduler.Schedule(() => unscaledCount++, 0d, timeMode: TimeMode.Unscaled);
+
+        var exception = Assert.Throws<AggregateException>(() => scheduler.Update(0.1f, 0.1f, 0.1f));
+
+        Assert.IsType<InvalidOperationException>(Assert.Single(exception.InnerExceptions));
+        Assert.Equal(1, scaledCount);
+        Assert.Equal(1, unscaledCount);
+    }
+
+    [Fact]
+    public void Schedule_NaNDelay_ThrowsArgumentOutOfRangeException()
+    {
+        var scheduler = new Scheduler();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => scheduler.Schedule(static () => { }, double.NaN));
+    }
+
+    [Fact]
+    public void Schedule_InfiniteDelay_NeverInvokes()
+    {
+        var scheduler = new Scheduler();
+        var invokeCount = 0;
+        scheduler.Schedule(() => invokeCount++, double.PositiveInfinity);
+
+        scheduler.Update(float.MaxValue, float.MaxValue, float.MaxValue);
+
+        Assert.Equal(0, invokeCount);
+    }
 }

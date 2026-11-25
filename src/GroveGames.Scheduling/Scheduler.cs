@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GroveGames.Scheduling;
 
@@ -44,13 +45,24 @@ public sealed class Scheduler : IScheduler
         _realtime += realtimeDeltaTime;
 
         var orderLimit = _nextOrder;
-        Process(_scaledQueue, _scaledTime, orderLimit);
-        Process(_unscaledQueue, _unscaledTime, orderLimit);
-        Process(_realtimeQueue, _realtime, orderLimit);
+        List<Exception>? exceptions = null;
+        Process(_scaledQueue, _scaledTime, orderLimit, ref exceptions);
+        Process(_unscaledQueue, _unscaledTime, orderLimit, ref exceptions);
+        Process(_realtimeQueue, _realtime, orderLimit, ref exceptions);
+
+        if (exceptions != null)
+        {
+            throw new AggregateException(exceptions);
+        }
     }
 
     private void Enqueue(Action? callback, IScheduledAction? action, double delay, ScheduleToken? token, TimeMode timeMode)
     {
+        if (double.IsNaN(delay))
+        {
+            throw new ArgumentOutOfRangeException(nameof(delay), delay, "The delay must be a number.");
+        }
+
         if (token != null && token.IsCanceled)
         {
             return;
@@ -61,7 +73,7 @@ public sealed class Scheduler : IScheduler
         GetQueue(timeMode).Push(in call);
     }
 
-    private static void Process(ScheduleQueue queue, double time, long orderLimit)
+    private static void Process(ScheduleQueue queue, double time, long orderLimit, ref List<Exception>? exceptions)
     {
         while (queue.Count > 0)
         {
@@ -74,9 +86,18 @@ public sealed class Scheduler : IScheduler
 
             var call = queue.Pop();
 
-            if (!call.IsCanceled)
+            if (call.IsCanceled)
+            {
+                continue;
+            }
+
+            try
             {
                 call.Invoke();
+            }
+            catch (Exception exception)
+            {
+                (exceptions ??= []).Add(exception);
             }
         }
     }
