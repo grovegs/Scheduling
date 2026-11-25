@@ -14,12 +14,12 @@ namespace GroveGames.Scheduling.Unity
             _realtime = Time.realtimeSinceStartupAsDouble;
         }
 
-        public void PreFrameUpdate(float deltaTime)
+        public void PreFrameUpdate(DeltaTime deltaTime)
         {
             var realtime = Time.realtimeSinceStartupAsDouble;
             var realtimeDeltaTime = (float)(realtime - _realtime);
             _realtime = realtime;
-            _scheduler.Update(deltaTime, Time.unscaledDeltaTime, realtimeDeltaTime);
+            _scheduler.Update(deltaTime.Scaled, deltaTime.Unscaled, realtimeDeltaTime);
         }
     }
 }
