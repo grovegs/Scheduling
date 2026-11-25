@@ -9,6 +9,8 @@ internal sealed class ScheduleQueue
 
     public int Count => _count;
 
+    public int Capacity => _items.Length;
+
     public ScheduleQueue(int capacity)
     {
         _items = new ScheduledCall[capacity];
@@ -24,7 +26,12 @@ internal sealed class ScheduleQueue
     {
         if (_count == _items.Length)
         {
-            Array.Resize(ref _items, _count << 1);
+            RemoveCanceled();
+
+            if (_count > _items.Length >> 1)
+            {
+                Array.Resize(ref _items, _items.Length << 1);
+            }
         }
 
         var index = _count++;
@@ -51,12 +58,38 @@ internal sealed class ScheduleQueue
         var last = _items[--_count];
         _items[_count] = default;
 
-        if (_count == 0)
+        if (_count > 0)
         {
-            return top;
+            SiftDown(0, in last);
         }
 
-        var index = 0;
+        return top;
+    }
+
+    private void RemoveCanceled()
+    {
+        var kept = 0;
+
+        for (var i = 0; i < _count; i++)
+        {
+            if (!_items[i].IsCanceled)
+            {
+                _items[kept++] = _items[i];
+            }
+        }
+
+        Array.Clear(_items, kept, _count - kept);
+        _count = kept;
+
+        for (var i = (_count >> 1) - 1; i >= 0; i--)
+        {
+            var item = _items[i];
+            SiftDown(i, in item);
+        }
+    }
+
+    private void SiftDown(int index, in ScheduledCall item)
+    {
         var half = _count >> 1;
 
         while (index < half)
@@ -69,7 +102,7 @@ internal sealed class ScheduleQueue
                 child = right;
             }
 
-            if (!Precedes(in _items[child], in last))
+            if (!Precedes(in _items[child], in item))
             {
                 break;
             }
@@ -78,8 +111,7 @@ internal sealed class ScheduleQueue
             index = child;
         }
 
-        _items[index] = last;
-        return top;
+        _items[index] = item;
     }
 
     private static bool Precedes(in ScheduledCall left, in ScheduledCall right)

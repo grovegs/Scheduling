@@ -13,8 +13,9 @@ Zero-allocation delayed callbacks with scaled, unscaled and realtime clocks for 
 
 - **Core**: `IScheduler` and `Scheduler` in the `GroveGames.Scheduling` NuGet package run an `Action` or an `IScheduledAction` after a delay. Calls are kept in a binary heap per clock, so scheduling allocates nothing until the heap grows.
 - **Three clocks**: `TimeMode.Scaled`, `TimeMode.Unscaled` and `TimeMode.Realtime` each advance from the deltas passed to `Update`, so pausing the game only stops the scaled clock.
-- **Order**: Calls due at the same time run in the order they were scheduled. A call scheduled from inside a callback waits for the next `Update`, even with a zero delay.
-- **Cancellation**: `ScheduleToken.Cancel()` drops every call scheduled with that token. `Reset()` lets new calls run while the canceled ones stay dropped. A call scheduled with a token that is already canceled is dropped too.
+- **Order**: Calls due at the same time run in the order they were scheduled. A call scheduled from inside a callback waits for the next `Update`, even with a zero delay. A negative delay counts as zero, an infinite one never runs, and `NaN` throws `ArgumentOutOfRangeException`.
+- **Cancellation**: `ScheduleToken.Cancel()` drops every call scheduled with that token. `Reset()` lets new calls run while the canceled ones stay dropped. A call scheduled with a token that is already canceled is dropped too. Canceled calls are removed from the heap before it grows, so canceling and rescheduling does not grow it.
+- **Errors**: A callback that throws does not stop the others. `Update` runs every due call on all three clocks, then throws an `AggregateException` with what went wrong.
 - **Dependency injection**: `AddScheduler()` registers `IScheduler` with [GroveGames.DependencyInjection](https://github.com/grovegs/DependencyInjection) and updates it from Unity's time every frame.
 
 ## Installation
