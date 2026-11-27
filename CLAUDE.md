@@ -2,10 +2,10 @@
 
 ## Package
 
-- The core is the `GroveGames.Scheduling` NuGet package at `src/GroveGames.Scheduling` (`net10.0`, `net9.0`, `net8.0`, `netstandard2.1`). It holds `IScheduler`, `Scheduler`, `IScheduledAction`, `ScheduleToken` and `TimeMode`. `ScheduleQueue` is a binary heap of `ScheduledCall` structs ordered by time, then by schedule order. Tests are in `tests/GroveGames.Scheduling.Tests` (xUnit v3).
-- `Scheduler` keeps its own scaled, unscaled and realtime clocks. They start at zero and advance only from `Update(deltaTime, unscaledDeltaTime, realtimeDeltaTime)`. A delay counts from the clock's current time. Calls scheduled during an `Update` wait for the next one.
+- The core is the `GroveGames.Scheduling` NuGet package at `src/GroveGames.Scheduling` (`net10.0`, `net9.0`, `net8.0`, `netstandard2.1`). It holds `IScheduler`, `Scheduler`, `ConcurrentScheduler`, `IScheduledAction`, `ScheduleToken` and `TimeMode`. `ScheduleQueue` is a binary heap of `ScheduledCall` structs ordered by time, then by schedule order. Tests are in `tests/GroveGames.Scheduling.Tests` (xUnit v3).
+- `Scheduler` keeps its own scaled, unscaled and realtime clocks. They start at zero and advance only from `Update(deltaTime, unscaledDeltaTime, realtimeDeltaTime)`. A delay counts from the clock's current time. Calls scheduled during an `Update` wait for the next one. `Scheduler` is single-threaded. `ConcurrentScheduler` wraps one: `Schedule` from any thread adds to a locked pending array, and `Update` swaps it with a second array and schedules its calls before updating, so nothing allocates after warm-up.
 - The Unity package at `src/GroveGames.Scheduling.Unity/Packages/com.grovegames.scheduling` references `GroveGames.Scheduling.dll`, installed with NuGetForUnity. There is no Godot addon.
-- The GroveGames.DependencyInjection integration in `Integrations/GroveGames.DependencyInjection` compiles only when that package is installed. It adds `AddScheduler()`, and `SchedulerUpdater` feeds Unity's deltas to `Update` before each frame.
+- The GroveGames.DependencyInjection integration in `Integrations/GroveGames.DependencyInjection` compiles only when that package is installed. It adds `AddScheduler()` and `AddConcurrentScheduler()`, and `SchedulerUpdater` and `ConcurrentSchedulerUpdater` feed Unity's deltas to `Update` before each frame and log each callback exception with `Debug.LogException`.
 - GroveGames.Tween builds on `ScheduleToken` and `TimeMode`, so changes to them are breaking for Tween too.
 
 ## Code Rules
