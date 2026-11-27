@@ -1,4 +1,3 @@
-using System;
 using GroveGames.DependencyInjection;
 using UnityEngine;
 
@@ -21,17 +20,7 @@ namespace GroveGames.Scheduling.Unity
             var realtimeDeltaTime = (float)(realtime - _realtime);
             _realtime = realtime;
 
-            try
-            {
-                _scheduler.Update(deltaTime.Scaled, deltaTime.Unscaled, realtimeDeltaTime);
-            }
-            catch (AggregateException exception)
-            {
-                foreach (var inner in exception.InnerExceptions)
-                {
-                    Debug.LogException(inner);
-                }
-            }
+            _scheduler.Update(deltaTime.Scaled, deltaTime.Unscaled, realtimeDeltaTime);
         }
     }
 }
