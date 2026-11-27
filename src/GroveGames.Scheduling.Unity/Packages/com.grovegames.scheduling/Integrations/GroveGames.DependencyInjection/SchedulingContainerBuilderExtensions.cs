@@ -10,5 +10,12 @@ namespace GroveGames.Scheduling.Unity
             builder.AddSingleton<IScheduler>(resolver => resolver.Resolve<Scheduler>());
             return builder.AddSingleton<SchedulerUpdater>();
         }
+
+        public static IContainerBuilder AddConcurrentScheduler(this IContainerBuilder builder)
+        {
+            builder.AddSingleton<ConcurrentScheduler>();
+            builder.AddSingleton<IScheduler>(resolver => resolver.Resolve<ConcurrentScheduler>());
+            return builder.AddSingleton<ConcurrentSchedulerUpdater>();
+        }
     }
 }
