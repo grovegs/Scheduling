@@ -111,6 +111,36 @@ public sealed class ConcurrentSchedulerTests
     }
 
     [Fact]
+    public void Schedule_TokenCanceledAndResetBeforeUpdate_DropsTheCall()
+    {
+        var scheduler = new ConcurrentScheduler();
+        var token = new ScheduleToken();
+        var action = new FakeScheduledAction();
+        scheduler.Schedule(action, 0d, token);
+
+        token.Cancel();
+        token.Reset();
+        scheduler.Update(0f, 0f, 0f);
+
+        Assert.Equal(0, action.InvokeCount);
+    }
+
+    [Fact]
+    public void Schedule_TokenAlreadyCanceledThenReset_DropsTheCall()
+    {
+        var scheduler = new ConcurrentScheduler();
+        var token = new ScheduleToken();
+        var action = new FakeScheduledAction();
+        token.Cancel();
+        scheduler.Schedule(action, 0d, token);
+
+        token.Reset();
+        scheduler.Update(0f, 0f, 0f);
+
+        Assert.Equal(0, action.InvokeCount);
+    }
+
+    [Fact]
     public void Schedule_NaNDelay_ThrowsOnTheCallingThread()
     {
         var scheduler = new ConcurrentScheduler();

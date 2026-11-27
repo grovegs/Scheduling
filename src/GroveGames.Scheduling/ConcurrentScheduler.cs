@@ -49,6 +49,11 @@ public sealed class ConcurrentScheduler : IScheduler
             var call = _draining[i];
             _draining[i] = default;
 
+            if (call.Token != null && call.Token.IsCanceledSince(call.TokenVersion))
+            {
+                continue;
+            }
+
             if (call.Callback != null)
             {
                 _scheduler.Schedule(call.Callback, call.Delay, call.Token, call.TimeMode);
@@ -69,6 +74,11 @@ public sealed class ConcurrentScheduler : IScheduler
             throw new ArgumentOutOfRangeException("delay", call.Delay, "The delay must be a number.");
         }
 
+        if (call.Token != null && call.Token.IsCanceled)
+        {
+            return;
+        }
+
         lock (_lock)
         {
             if (_pendingCount == _pending.Length)
@@ -86,6 +96,7 @@ public sealed class ConcurrentScheduler : IScheduler
         private readonly IScheduledAction? _action;
         private readonly double _delay;
         private readonly ScheduleToken? _token;
+        private readonly int _tokenVersion;
         private readonly TimeMode _timeMode;
 
         public Action? Callback => _callback;
@@ -96,6 +107,8 @@ public sealed class ConcurrentScheduler : IScheduler
 
         public ScheduleToken? Token => _token;
 
+        public int TokenVersion => _tokenVersion;
+
         public TimeMode TimeMode => _timeMode;
 
         public PendingCall(Action? callback, IScheduledAction? action, double delay, ScheduleToken? token, TimeMode timeMode)
@@ -104,6 +117,7 @@ public sealed class ConcurrentScheduler : IScheduler
             _action = action;
             _delay = delay;
             _token = token;
+            _tokenVersion = token != null ? token.Version : 0;
             _timeMode = timeMode;
         }
     }
