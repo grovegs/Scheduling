@@ -13,6 +13,7 @@ Rules for game code that uses this package. They hold in every game. The API is 
 - To reuse a token after `Cancel`, call `Reset` before scheduling again.
 - Pass a cached delegate or an `IScheduledAction`, not a new lambda per call, on anything that runs often.
 - A call scheduled from inside a callback runs on a later update, even with a zero delay. Do not rely on it running in the same frame.
+- Schedule on `Scheduler` only from the thread that updates it. To hand work from a background thread back to the main thread, register `ConcurrentScheduler` and schedule on it from that thread with a zero delay. Its `Update` still runs on one thread only.
 
 ## Unity
 
